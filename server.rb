@@ -3,6 +3,7 @@ require 'bundler/setup'
 
 require 'sinatra'
 require 'sinatra/reloader' if development?
+require 'sinatra/json'
 require 'octokit'
 require 'oj'
 require 'multi_json'
@@ -19,7 +20,7 @@ CLIENT = Octokit::Client.new \
   auto_paginate: true
 
 get '/' do
-  MultiJson.dump({
+  json({
     status: "ok",
     response: {
       endpoints: [
@@ -36,7 +37,7 @@ get '/repos/:owner/:repo/issues/:id' do
          CONFIG['valid_repos'][params[:owner]].include?(params[:repo])
 
     status 403
-    MultiJson.dump({
+    json({
       status: "error",
       message: "We don't support '#{repo}' yet."
     })
@@ -44,22 +45,23 @@ get '/repos/:owner/:repo/issues/:id' do
   else
     begin
       res = CLIENT.issue(repo, params[:id])
-      MultiJson.dump({
+      json({
         status: "ok",
         response: res
       })
     rescue Octokit::NotFound => e
-      MultiJson.dump({
+      json({
         status: "error",
         message: "can not find issue(#{params[:id]}) under #{repo}."
       })
     rescue Octokit::Unauthorized => e
-      MultiJson.dump({
+      json({
         status: "error",
-        message: "github unauthorized. please contact @honghao!"
+        message: "github unauthorized. please contact @agate!"
       })
-    rescue Exception => e
-      MultiJson.dump({
+    rescue => e
+      status 500
+      json({
         status: "error",
         message: "unknown exception"
       })
