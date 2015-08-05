@@ -1,0 +1,7 @@
+valid_repos:
+  OrgOrUser1:
+    - RepoName1
+    - RepoName2
+  OrgOrUser2:
+    - RepoName1
+    - RepoName2
